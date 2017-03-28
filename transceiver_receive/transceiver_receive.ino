@@ -13,7 +13,7 @@ Sending from a midi controller to the xbee
 #define TST2 4
 
 
-SoftwareSerial midiSerial(midiRX, midiTX); // RX, TX 
+SoftwareSerial midiSerial(midiRX, midiTX); // RX, TX //may swap these pins?
 SoftwareSerial xbeeSerial(xbeeRX, xbeeTX); // RX, TX
 void setup(){
 
@@ -29,9 +29,11 @@ delay(50);
  // pinMode(xbeeTX, OUTPUT);
  // digitalWrite(xbeeTX,HIGH);
   */
-   xbeeSerial.begin(38400);
    midiSerial.begin(31250);
+   xbeeSerial.begin(38400);
+  
   //xbeeSerial.write("hello");
+   xbeeSerial.write("sent");
 
 }
 
@@ -41,30 +43,28 @@ void loop() {
   int pitch = 0;
   int velocity = 0;
   
-  //xbeeSerial.print("hello");
-  //delay(2000);
+ // xbeeSerial.print("hello");
+ // delay(2000);
 
-  while (midiSerial.available()){
+  while(xbeeSerial.available()){
     delay(1);//required to get all the data
     
-    cmd = midiSerial.read();
-    pitch = midiSerial.read();
-    velocity = midiSerial.read();
-  }
+    cmd = xbeeSerial.read();
+    pitch = xbeeSerial.read();
+    velocity = xbeeSerial.read();
+ 
   //}
   //if(pitch>0x40&&pitch<0x60){
     // digitalWrite(13, HIGH);
    if(cmd==0x90&&pitch){
-    xbeeSerial.write(cmd);
-    //midiSerial.write(cmd);
-    
-    xbeeSerial.write(pitch);
-   // midiSerial.write(pitch);
-    
-    xbeeSerial.write(velocity);
-    //midiSerial.write(velocity);
+    midiSerial.write(cmd);
+    midiSerial.write(pitch);
+    midiSerial.write(velocity);
+ /* */
+    xbeeSerial.write("midisent");
 
    //xbeeSerial.write(midiSerial.read());
   }
-//*/
+ }
+
 }
