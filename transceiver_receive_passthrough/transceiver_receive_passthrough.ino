@@ -1,7 +1,9 @@
 /*
-Sending from a midi controller to the xbee
+Receiving from an xbee to the midi interface
  */
 #include <SoftwareSerial.h>
+
+#define SECONDS(sec) (1000 * (sec))
 
 #define xbeeRX A2
 #define xbeeTX A3
@@ -12,9 +14,11 @@ Sending from a midi controller to the xbee
 #define TST1 3
 #define TST2 4
 
+int timer = 0;
 
 SoftwareSerial midiSerial(midiRX, midiTX); // RX, TX 
 SoftwareSerial xbeeSerial(xbeeRX, xbeeTX); // RX, TX
+
 void setup(){
 
   //pinMode(4, OUTPUT); //TST2
@@ -29,9 +33,12 @@ delay(50);
  // pinMode(xbeeTX, OUTPUT);
  // digitalWrite(xbeeTX,HIGH);
   */
-   xbeeSerial.begin(38400);
    midiSerial.begin(31250);
+   xbeeSerial.begin(38400);
+  
   //xbeeSerial.write("hello");
+   xbeeSerial.write("sent");
+   timer =millis();
 
 }
 
@@ -41,32 +48,34 @@ void loop() {
   int pitch = 0;
   int velocity = 0;
   
-  //xbeeSerial.print("hello");
-  //delay(2000);
+ // xbeeSerial.print("hello");
+ // delay(2000);
 
-  while (midiSerial.available()){
+ 
+
+ 
+  while(xbeeSerial.available()){
     delay(1);//required to get all the data
-    
-    cmd = midiSerial.read();
-    pitch = midiSerial.read();
-    velocity = midiSerial.read();
-  }
+    /*
+    cmd = xbeeSerial.read();
+    pitch = xbeeSerial.read();
+    velocity = xbeeSerial.read();
+ 
   //}
   //if(pitch>0x40&&pitch<0x60){
     // digitalWrite(13, HIGH);
    if(cmd==0x90&&pitch){
-    xbeeSerial.write(cmd);
-    //midiSerial.write(cmd);
-    
-    xbeeSerial.write(pitch);
-   // midiSerial.write(pitch);
-    
-    xbeeSerial.write(velocity);
-    //midiSerial.write(velocity);
-
-    xbeeSerial.write("yay");
-
-   //xbeeSerial.write(midiSerial.read());
-  }
+    midiSerial.write(cmd);
+    midiSerial.write(pitch);
+    midiSerial.write(velocity);
+ /* */
+    //xbeeSerial.write("midisent");
 //*/
+   midiSerial.write(xbeeSerial.read());
+   timer = millis();
+  //}
+ }
+   if(midiSerial.available() && (millis() - timer) < SECONDS(10))
+    midiSerial.write(midiSerial.read());
+
 }
