@@ -61,7 +61,7 @@ void loop() {
     midiSerial.write(pitch);
     midiSerial.write(velocity);
  /* */
-    //xbeeSerial.write("midisent");
+    xbeeSerial.write("midisent");
 //*/
    midiSerial.write(xbeeSerial.read());
   //}

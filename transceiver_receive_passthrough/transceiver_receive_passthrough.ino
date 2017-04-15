@@ -1,8 +1,11 @@
+
 /*
 Receiving from an xbee to the midi interface
+with midi passthrough.
  */
 #include <SoftwareSerial.h>
 
+#define DEBUG 1
 #define SECONDS(sec) (1000 * (sec))
 
 #define xbeeRX A2
@@ -14,68 +17,76 @@ Receiving from an xbee to the midi interface
 #define TST1 3
 #define TST2 4
 
-int timer = 0;
+uint32_t timer = 0, timer2 = 0;
+bool state = 0;
 
-SoftwareSerial midiSerial(midiRX, midiTX); // RX, TX 
+SoftwareSerial midiSerial(midiRX, midiTX); // RX, TX
 SoftwareSerial xbeeSerial(xbeeRX, xbeeTX); // RX, TX
 
-void setup(){
 
-  //pinMode(4, OUTPUT); //TST2
-/*pinMode(xbeeRX, INPUT); //TST2
-pinMode(xbeeTX, INPUT); //TST2
-  pinMode(TST2, OUTPUT);
- digitalWrite(TST2,HIGH);
-  delay(50);
-  digitalWrite(TST2,LOW); 
-delay(50);
-   digitalWrite(TST2,HIGH);
- // pinMode(xbeeTX, OUTPUT);
- // digitalWrite(xbeeTX,HIGH);
-  */
-   midiSerial.begin(31250);
-   xbeeSerial.begin(38400);
-  
-  //xbeeSerial.write("hello");
-   xbeeSerial.write("sent");
-   timer =millis();
 
+void setup() {
+  midiSerial.begin(31250); //
+  xbeeSerial.begin(38400);
+  //  attachInterrupt(xbeeRX, xbeeInt, CHANGE);
+  xbeeSerial.write("hello");
+  //xbeeSerial.write("sent");
+  timer =millis();
 }
 
 // the loop function runs over and over again forever
 void loop() {
   int cmd = 0;
-  int pitch = 0;
-  int velocity = 0;
-  
- // xbeeSerial.print("hello");
- // delay(2000);
+  //int pitch = 0;
+  //int velocity = 0;
 
- 
-
- 
-  while(xbeeSerial.available()){
+  if (xbeeSerial.available()) {
     delay(1);//required to get all the data
-    /*
     cmd = xbeeSerial.read();
-    pitch = xbeeSerial.read();
-    velocity = xbeeSerial.read();
- 
-  //}
-  //if(pitch>0x40&&pitch<0x60){
-    // digitalWrite(13, HIGH);
-   if(cmd==0x90&&pitch){
     midiSerial.write(cmd);
-    midiSerial.write(pitch);
-    midiSerial.write(velocity);
- /* */
-    //xbeeSerial.write("midisent");
-//*/
-   midiSerial.write(xbeeSerial.read());
-   timer = millis();
-  //}
- }
-   if(midiSerial.available() && (millis() - timer) < SECONDS(10))
-    midiSerial.write(midiSerial.read());
+    timer = millis();
+  }
+  else if (digitalRead(xbeeRX) != state) {
+    state = !state;
+    timer = millis();
+  }
+  
+#IF DEBUG
+  if ( (millis() - timer2) > SECONDS(10)) {
+    if (midiSerial.isListening())
+      xbeeSerial.println("midi is listening");
 
+    if (xbeeSerial.isListening())
+      xbeeSerial.println("xbee is listening");
+    timer2 = millis();
+  }
+#ENDIF
+
+  if ( (millis() - timer) > SECONDS(10)) { //10000){
+    midiSerial.listen();
+    delay(2);
+    if (midiSerial.available()) {
+      delay(1);
+      cmd = midiSerial.read();
+      midiSerial.write(cmd);
+      // xbeeSerial.write(cmd);
+    }
+  }
+  else { // if (midiSerial.available() && (millis() - timer) < 1000){
+    midiSerial.flush();
+    if (! xbeeSerial.isListening()) {
+      xbeeSerial.listen();
+      delay(2);
+    }
+  }
 }
+
+//void xbeeInt() {
+  //xbeeSerial.listen();
+  //delay(1);
+  //xbeeSerial.write("interrupt");
+  //timer = millis();
+//}
+
+
+
