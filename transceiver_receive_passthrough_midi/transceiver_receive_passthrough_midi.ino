@@ -1,14 +1,18 @@
 
 /*
  * designed for atmega328p
- * 
+ *
  * Receiving from an xbee to the midi interface
  * with midi passthrough.
- * 
+ *
  * Robert Davis
  * 2017-4-14
  */
- 
+#include <MIDI.h>
+#include <midi_Defs.h>
+#include <midi_Message.h>
+#include <midi_Namespace.h>
+#include <midi_Settings.h>
 #include <SoftwareSerial.h>
 
 #define DEBUG 1
@@ -26,18 +30,20 @@
 
 uint32_t timer = 0;
 
-#IF DEBUG
+//#IF DEBUG
 uint32_t timer2 = 0;
-#ENDIF
+//#ENDIF
 
-// temp variable to check if xbee is receiving 
+// temp variable to check if xbee is receiving
 bool xbeeRX_State = 0;
 
 //initialize software serial ports for passthrough and wireless
 SoftwareSerial midiSerial(midiRX, midiTX); // RX, TX
 SoftwareSerial xbeeSerial(xbeeRX, xbeeTX); // RX, TX
 
-
+//create MIDI Instance
+MIDI_CREATE_INSTANCE(SoftwareSerial, midiSerial, midiInOut);
+MIDI_CREATE_INSTANCE(SoftwareSerial, xbeeSerial, xbeeIn);
 
 void setup() {
   midiSerial.begin(31250); //midi operates at 31250 BAUD and must be set to this
@@ -58,13 +64,32 @@ void loop() {
   /***********************************
   //xbee receive block
   *************************************/
-  if (xbeeSerial.isListening()) {//if xbeeserial port is listening
-    if (xbeeSerial.available()) { //if there is data available
-      delay(1); //required to get all the data
-      cmd = xbeeSerial.read(); //read data in from xbee
-      midiSerial.write(cmd); // write data into midi
-      timer = millis(); //reset timer
+  if (xbeeSerial.isListening()) {//if xbeeSerial port is listening
+    //#IF DEBUG
+    if (xbeeIn.read())                // Is there a MIDI message incoming ?
+    {
+      switch (xbeeIn.getType())     // Get the type of the message we caught
+      {
+        case midi::ProgramChange:       // If it is a Program Change,
+          xbeeSerial.write("poop");
+        case midi::NoteOn:
+          midiInOut.send(xbeeIn.getType(),
+                         xbeeIn.getData1(),
+                         xbeeIn.getData2(),
+                         xbeeIn.getChannel());
+      }
     }
+    //#ELSE
+    /*
+        if (xbeeSerial.available()) { //if there is data available
+          delay(1); //required to get all the data
+          cmd = xbeeSerial.read(); //read data in from xbee
+          midiInOut.
+          midiSerial.write(cmd); // write data into midi
+          timer = millis(); //reset timer
+        }
+    //#ENDIF
+    */
   }
   else if (digitalRead(xbeeRX) != xbeeRX_State) {
     xbeeRX_State = !xbeeRX_State;
@@ -74,17 +99,17 @@ void loop() {
   /***********************************
   //print debug info
   *************************************/
-#IF DEBUG
-  if ( (millis() - timer2) > SECONDS(10)) { //if the timer has been going for more than 10 seconds
-    if (midiSerial.isListening())
-      xbeeSerial.println("midi is listening");
+  /*#IF DEBUG
+    if ( (millis() - timer2) > SECONDS(10)) { //if the timer has been going for more than 10 seconds
+      if (midiSerial.isListening())
+        xbeeSerial.println("midi is listening");
 
-    if (xbeeSerial.isListening())
-      xbeeSerial.println("xbee is listening");
-    timer2 = millis();
-  }
-#ENDIF
-
+      if (xbeeSerial.isListening())
+        xbeeSerial.println("xbee is listening");
+      timer2 = millis();
+    }
+  #ENDIF
+  */
   //***********************************
   //midi passthrough receive block
   //*************************************/
@@ -98,7 +123,7 @@ void loop() {
     }
   }
   else { //timer is less than 10 seconds
-    midiSerial.flush(); //delete anything in midi buffer 
+    midiSerial.flush(); //delete anything in midi buffer
     if (! xbeeSerial.isListening()) { //if the xbee isnt already listening
       xbeeSerial.listen(); //start listening
       delay(2); //small delay to ensure that the port is listening
