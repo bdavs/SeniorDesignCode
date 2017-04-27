@@ -26,9 +26,9 @@
 
 uint32_t timer = 0;
 
-#IF DEBUG
+//#IF DEBUG
 uint32_t timer2 = 0;
-#ENDIF
+//#ENDIF
 
 // temp variable to check if xbee is receiving 
 bool xbeeRX_State = 0;
@@ -74,7 +74,7 @@ void loop() {
   /***********************************
   //print debug info
   *************************************/
-#IF DEBUG
+//#IF DEBUG
   if ( (millis() - timer2) > SECONDS(10)) { //if the timer has been going for more than 10 seconds
     if (midiSerial.isListening())
       xbeeSerial.println("midi is listening");
@@ -83,7 +83,7 @@ void loop() {
       xbeeSerial.println("xbee is listening");
     timer2 = millis();
   }
-#ENDIF
+//#ENDIF
 
   //***********************************
   //midi passthrough receive block

@@ -31,7 +31,9 @@ delay(50);
   */
    xbeeSerial.begin(38400);
    midiSerial.begin(31250);
-  //xbeeSerial.write("hello");
+   delay(20);
+  xbeeSerial.write(0xC0);
+  xbeeSerial.write(0x0E);
 
 }
 

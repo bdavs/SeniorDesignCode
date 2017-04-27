@@ -99,15 +99,16 @@ void loop() {
   /***********************************
   //print debug info
   *************************************/
-  /*#IF DEBUG
+  /*#IF DEBUG*/
     if ( (millis() - timer2) > SECONDS(10)) { //if the timer has been going for more than 10 seconds
       if (midiSerial.isListening())
-        xbeeSerial.println("midi is listening");
+        xbeeSerial.println("\nmidi is listening");
 
       if (xbeeSerial.isListening())
-        xbeeSerial.println("xbee is listening");
+        xbeeSerial.println("\nxbee is listening");
       timer2 = millis();
     }
+    /*
   #ENDIF
   */
   //***********************************
@@ -115,12 +116,33 @@ void loop() {
   //*************************************/
   if ( (millis() - timer) > SECONDS(10)) { //if the timer has been going for more than 10 seconds
     midiSerial.listen(); //begin listening on the midi port
-    delay(2); //small delay to ensure it is listening
+    delay(2);
+    if (midiInOut.read())                // Is there a MIDI message incoming ?
+    {
+      switch (midiInOut.getType())     // Get the type of the message we caught
+      {
+        case midi::ProgramChange:       // If it is a Program Change,
+          //xbeeSerial.write("poop");
+          midiInOut.send(midiInOut.getType(),
+                         midiInOut.getData1(),
+                         midiInOut.getData2(),
+                         midiInOut.getChannel());
+        case midi::NoteOn:
+          midiInOut.send(midiInOut.getType(),
+                         midiInOut.getData1(),
+                         midiInOut.getData2(),
+                         midiInOut.getChannel());
+      }
+    }
+    /*
+     //small delay to ensure it is listening
     if (midiSerial.available()) {//if there is data available
       delay(1); //delay to ensure data integrity
       cmd = midiSerial.read(); //read data from midi port
       midiSerial.write(cmd); //send data to midi out
+      xbeeSerial.println("sending");
     }
+    */
   }
   else { //timer is less than 10 seconds
     midiSerial.flush(); //delete anything in midi buffer
