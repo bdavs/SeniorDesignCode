@@ -89,10 +89,11 @@ void loop() {
   //midi passthrough receive block
   //*************************************/
   if ( (millis() - timer) > SECONDS(10)) { //if the timer has been going for more than 10 seconds
-    midiSerial.listen(); //begin listening on the midi port
+    if(!midiSerial.isListening())
+      midiSerial.listen(); //begin listening on the midi port
     delay(2); //small delay to ensure it is listening
-    if (midiSerial.available()) {//if there is data available
-      delay(1); //delay to ensure data integrity
+    while (midiSerial.available()) {//if there is data available
+      //delay(1); //delay to ensure data integrity
       cmd = midiSerial.read(); //read data from midi port
       midiSerial.write(cmd); //send data to midi out
     }

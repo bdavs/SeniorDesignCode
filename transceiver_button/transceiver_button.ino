@@ -18,72 +18,39 @@ bool flag = false;
 SoftwareSerial xbeeSerial(xbeeRX, xbeeTX); // RX, TX
 void setup() {
 
-  //pinMode(4, OUTPUT); //TST2
-  /*pinMode(xbeeRX, INPUT); //TST2
-  pinMode(xbeeTX, INPUT); //TST2
-    pinMode(TST2, OUTPUT);
-   digitalWrite(TST2,HIGH);
-    delay(50);
-    digitalWrite(TST2,LOW);
-  delay(50);
-     digitalWrite(TST2,HIGH);
-   // pinMode(xbeeTX, OUTPUT);
-   // digitalWrite(xbeeTX,HIGH);
-    */
+
   xbeeSerial.begin(38400);
-  //midiSerial.begin(31250);
   pinMode(TST1, OUTPUT);
-  pinMode(TST2, INPUT);
-  digitalWrite(TST1, HIGH);
+  pinMode(TST2, INPUT_PULLUP);
+  digitalWrite(TST1, LOW);
   delay(20);
-  //  xbeeSerial.write(0xC0);
-  //  xbeeSerial.write(0x0E);
+
 
 }
 
 // the loop function runs over and over again forever
 void loop() {
+  int noop = 0xAA;
   int cmd = 90;
-  int pitch = 60;
-  int velocity = 100;
+  int pitch = 48;//60;
+  int velocity = 120;
+  //            note on    pitch     velocity
+  byte mesg[] = {0x90,     0x3C,      0x78};
+  
 
-  if (digitalRead(TST2) == HIGH & flag==false) {
-    //delay(20);
-    xbeeSerial.write('0x0');
-    delay(20);
-    xbeeSerial.write(cmd);
-    xbeeSerial.write(pitch);
-    xbeeSerial.write(velocity);
+  if (digitalRead(TST2) == LOW && flag==false) {
+    xbeeSerial.write(mesg, sizeof(mesg));
+    delay(1);
+    xbeeSerial.write(mesg, sizeof(mesg));
+    delay(1);
+    xbeeSerial.write(mesg, sizeof(mesg));
     flag=true;
   }
-  else if(digitalRead(TST2) == LOW & flag==true){
-    delay(1000);
+  else if(digitalRead(TST2) == HIGH && flag==true){
+    delay(3000);
+    //xbeeSerial.flush();
     flag=false;
   }
-  //xbeeSerial.print("hello");
-  //delay(2000);
 
-  //while (midiSerial.available()){
-  //delay(1);//required to get all the data
-  /*
-  cmd = midiSerial.read();
-  pitch = midiSerial.read();
-  velocity = midiSerial.read();
-  }
-  //}
-  //if(pitch>0x40&&pitch<0x60){
-  // digitalWrite(13, HIGH);
-  if(cmd==0x90&&pitch){
-  xbeeSerial.write(cmd);
-  //midiSerial.write(cmd);
-
-  xbeeSerial.write(pitch);
-  // midiSerial.write(pitch);
-
-  xbeeSerial.write(velocity);
-  //midiSerial.write(velocity);
-  //*/
-  //xbeeSerial.write(midiSerial.read());
-  //}
 
 }
