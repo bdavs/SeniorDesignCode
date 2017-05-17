@@ -1,6 +1,11 @@
 /*
-Sending from a midi controller to the xbee
- */
+  designed for atmega328p
+  
+  Sending one command from a pushbutton to the xbee
+
+   Robert Davis
+   2017-5-17
+*/
 #include <SoftwareSerial.h>
 
 #define xbeeRX A2
@@ -14,42 +19,38 @@ Sending from a midi controller to the xbee
 
 bool flag = false;
 
-//SoftwareSerial midiSerial(midiRX, midiTX); // RX, TX
 SoftwareSerial xbeeSerial(xbeeRX, xbeeTX); // RX, TX
+
 void setup() {
-
-
   xbeeSerial.begin(38400);
   pinMode(TST1, OUTPUT);
-  pinMode(TST2, INPUT_PULLUP);
   digitalWrite(TST1, LOW);
-  delay(20);
-
-
+  pinMode(TST2, INPUT_PULLUP);
 }
 
-// the loop function runs over and over again forever
+/*
+  If button is hit and wasn't hit in the past three seconds
+  send a message to play the lowet bell three times in rapid succession
+
+  the system will ignore any extra commands but will wake it up out of
+  passthrough mode
+*/
 void loop() {
-  int noop = 0xAA;
-  int cmd = 90;
-  int pitch = 48;//60;
-  int velocity = 120;
   //            note on    pitch     velocity
   byte mesg[] = {0x90,     0x3C,      0x78};
-  
+  //byte mesg[] = {0x90,     0x30,      0x78}; //backup command
 
-  if (digitalRead(TST2) == LOW && flag==false) {
+  if (digitalRead(TST2) == LOW && flag == false) {
     xbeeSerial.write(mesg, sizeof(mesg));
     delay(1);
     xbeeSerial.write(mesg, sizeof(mesg));
     delay(1);
     xbeeSerial.write(mesg, sizeof(mesg));
-    flag=true;
+    flag = true;
   }
-  else if(digitalRead(TST2) == HIGH && flag==true){
+  else if (digitalRead(TST2) == HIGH && flag == true) { //wait 3 seconds before allowing again
     delay(3000);
-    //xbeeSerial.flush();
-    flag=false;
+    flag = false;
   }
 
 

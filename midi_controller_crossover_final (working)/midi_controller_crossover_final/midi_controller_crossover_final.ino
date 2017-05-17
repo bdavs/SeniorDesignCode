@@ -19,6 +19,10 @@ double timers[28];
 int notes[] = {71, 69, 67, 65, 64, 
                 62, 60, 59, 57, 55, 
                 53, 52, 50, 48};
+               //Durfee Bell Tower
+/*int notes[] = {71, 69, 67, 65, 63, 
+                62, 61, 60, 58, 57, 
+                56, 55, 53, 51};   */ 
 //Durfee Bell Tower
 /*int notes[] = {71, 69, 67, 65, 63, 
                 62, 61, 60, 58, 57, 
@@ -67,9 +71,20 @@ void loop() {
   //bit by bit which holds the shift register data 
   //and if it was high (1) then it prints
   //the corresponding location in the array
-  for (int n=0; n<=15; n++)
+  
+for (int n=0; n<=15; n++)
   {
-    if (shiftReg1 & (1 << n))
+    if ((n % 2 == 0) && (shiftReg1 & (1 << n)) && (shiftReg1 & (1 << n+1)))  //if button is even and both the even button and it's odd counterpart are pressed
+    {
+      midiOut.sendNoteOff(notes[n/2], 127, 1);
+    }
+    
+    else if ((n % 2 != 0) && (shiftReg1 & (1 << n)) && (shiftReg1 & (1 << n-1))) // if button is odd and both the odd button and it's even counterpart are pressed
+    {
+      midiOut.sendNoteOff(notes[(n-1)/2], 127, 1);
+    }
+    
+    else if (shiftReg1 & (1 << n))
     {
       button_controller(n);
     }
@@ -81,9 +96,20 @@ void loop() {
     }
   }
   
-  for (int n = 0; n <= 11; n++ )
+    for (int n = 0; n <= 11; n++ )
   {
-    if (shiftReg2 & (1 << n))
+
+    if ((n % 2 == 0) && (shiftReg2 & (1 << n)) && (shiftReg2 & (1 << n+1)))  //if button is even and both the even button and it's odd counterpart are pressed
+    {
+      midiOut.sendNoteOff(notes[n/2], 127, 1);
+    }
+    
+    else if ((n % 2 != 0) && (shiftReg2 & (1 << n)) && (shiftReg2 & (1 << n-1))) // if button is odd and both the odd button and it's even counterpart are pressed
+    {
+      midiOut.sendNoteOff(notes[(n-1)/2], 127, 1);
+    }
+    
+    else if (shiftReg2 & (1 << n))
     {
       button_controller(n+16);
     }
@@ -94,6 +120,7 @@ void loop() {
       timerflags[n+16] = false;
     }
   }
+
   
 }
   

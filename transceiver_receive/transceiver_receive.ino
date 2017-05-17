@@ -42,27 +42,12 @@ void loop() {
   int cmd = 0;
   int pitch = 0;
   int velocity = 0;
-  
- // xbeeSerial.print("hello");
- // delay(2000);
 
   while(xbeeSerial.available()){
     delay(1);//required to get all the data
-    /*
-    cmd = xbeeSerial.read();
-    pitch = xbeeSerial.read();
-    velocity = xbeeSerial.read();
- 
-  //}
-  //if(pitch>0x40&&pitch<0x60){
-    // digitalWrite(13, HIGH);
-   if(cmd==0x90&&pitch){
-    midiSerial.write(cmd);
-    midiSerial.write(pitch);
-    midiSerial.write(velocity);
- /* */
+
     xbeeSerial.write("midisent");
-//*/
+
    midiSerial.write(xbeeSerial.read());
   //}
  }
