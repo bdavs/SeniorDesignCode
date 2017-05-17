@@ -1,6 +1,9 @@
 /*
-Sending from a midi controller to the xbee
- */
+   https://github.com/bdavs/SeniorDesignCode
+  Sending from a midi controller to the xbee
+  Robert Davis
+  2017-4-21
+*/
 #include <SoftwareSerial.h>
 
 #define xbeeRX A2
@@ -13,13 +16,13 @@ Sending from a midi controller to the xbee
 #define TST2 4
 
 
-SoftwareSerial midiSerial(midiRX, midiTX); // RX, TX 
+SoftwareSerial midiSerial(midiRX, midiTX); // RX, TX
 SoftwareSerial xbeeSerial(xbeeRX, xbeeTX); // RX, TX
-void setup(){
+void setup() {
 
-   xbeeSerial.begin(38400);
-   midiSerial.begin(31250);
-   delay(20);
+  xbeeSerial.begin(38400);
+  midiSerial.begin(31250);
+  delay(20);
   xbeeSerial.write(0xC0);
   xbeeSerial.write(0x0E);
 
@@ -28,10 +31,10 @@ void setup(){
 // the loop function runs over and over again forever
 //simply reads the midi input and sends it as output over xbee
 void loop() {
-  
-  while (midiSerial.available()){
+
+  while (midiSerial.available()) {
     delay(1);//required to get all the data
-   xbeeSerial.write(midiSerial.read());
+    xbeeSerial.write(midiSerial.read());
   }
 
 }

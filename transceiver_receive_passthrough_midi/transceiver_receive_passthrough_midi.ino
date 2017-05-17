@@ -1,5 +1,6 @@
 
 /*
+   https://github.com/bdavs/SeniorDesignCode
    designed for atmega328p
 
    Receiving from an xbee to the midi interface
@@ -51,7 +52,7 @@ void loop() {
   /*
      switch to xbee receive
   */
-  else if (digitalRead(xbeeRX) == LOW) { 
+  else if (digitalRead(xbeeRX) == LOW) {
     timer = millis(); //reset timer
     midiSerial.flush(); //delete anything in midi buffer
     if (! xbeeSerial.isListening()) { //if the xbee isnt already listening
