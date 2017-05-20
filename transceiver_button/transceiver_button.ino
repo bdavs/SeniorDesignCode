@@ -38,8 +38,8 @@ void setup() {
 */
 void loop() {
   //            note on    pitch     velocity
-  byte mesg[] = {0x90,     0x3C,      0x78};
-  //byte mesg[] = {0x90,     0x30,      0x78}; //backup command
+  //byte mesg[] = {0x90,     0x3C,      0x78};
+  byte mesg[] = {0x90,     0x30,      0x78}; //backup command
 
   if (digitalRead(TST2) == LOW && flag == false) {
     xbeeSerial.write(mesg, sizeof(mesg));

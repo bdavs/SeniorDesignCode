@@ -24,6 +24,8 @@ bool flags[28];
 bool timerflags[28];
 double timers[28];
 
+uint32_t progChangeTimer = 0;
+
 //notes to be played by buttons E-flat3-G4
 //Final Durfee Bell Tower
 int notes[] = {70, 68, 67, 65, 63,
@@ -126,6 +128,13 @@ void loop() {
       timerflags[n + 16] = false;
     }
   }
+
+  //
+    if (millis() - progChangeTimer > 10000){
+      midiOut.sendProgramChange(14, 1);
+      progChangeTimer = millis();
+    }
+  
 }
 
 //button controller function which sends appropriate
